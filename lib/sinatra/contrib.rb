@@ -23,6 +23,7 @@ module Sinatra
     module Custom
       # register :Compass
       register :Decompile
+      helpers :Jsonp
     end
 
     ##
