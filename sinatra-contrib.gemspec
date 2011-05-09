@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
     "lib/sinatra/decompile.rb",
     "lib/sinatra/engine_tracking.rb",
     "lib/sinatra/extension.rb",
+    "lib/sinatra/json.rb",
     "lib/sinatra/link_header.rb",
     "lib/sinatra/namespace.rb",
     "lib/sinatra/reloader.rb",
