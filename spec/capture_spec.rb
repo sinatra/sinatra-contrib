@@ -1,6 +1,5 @@
-require 'backports'
+require 'spec_helper'
 require 'slim'
-require_relative 'spec_helper'
 
 describe Sinatra::Capture do
   subject do
