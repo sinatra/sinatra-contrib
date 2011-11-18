@@ -1,6 +1,5 @@
-require 'backports'
-require_relative 'spec_helper'
-require_relative 'okjson'
+require 'spec_helper'
+require 'okjson'
 
 describe Sinatra::RespondWith do
   def provides(*args)
