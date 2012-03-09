@@ -1,0 +1,5 @@
+---
+foo:
+  production: 10
+  default: 30
+  development: 20

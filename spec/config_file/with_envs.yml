@@ -1,4 +1,6 @@
 ---
+default:
+  foo: default
 development:
   foo: development
 production:
