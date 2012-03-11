@@ -611,31 +611,27 @@ describe Sinatra::Namespace do
         end
 
         it 'is not compatible with MultiRoute extension 2' do
-          proc do
-            mock_app do
-              namespace('/') do
-                register(Sinatra::MultiRoute)
-                get('foo', 'bar') {'ok'}
-              end
+          mock_app do
+            namespace('/') do
+              register(Sinatra::MultiRoute)
+              get('foo', 'bar') {'ok'}
             end
-            if verb == :get
-              send(verb, '/foo').body == 'ok'
-              send(verb, '/bar').status.should == 404
-            end
+          end
+          if verb == :get
+            send(verb, '/foo').body == 'ok'
+            send(verb, '/bar').status.should == 404
           end
         end
 
         it 'is compatible with MultiRoute#route method though' do
-          proc do
-            mock_app do
-              register(Sinatra::MultiRoute)
-              namespace('/') do
-                route(:get, 'COPY', :post, '*') {'ok'}
-              end
+          mock_app do
+            register(Sinatra::MultiRoute)
+            namespace('/') do
+              route(:get, 'COPY', :post, '*') {'ok'}
             end
-            if [:get, :post].any?{|v| v==verb}
-              send(verb, '/foo').body == 'ok'
-            end
+          end
+          if [:get, :post].any?{|v| v==verb}
+            send(verb, '/foo').body == 'ok'
           end
         end
 
