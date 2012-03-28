@@ -145,7 +145,7 @@ module Sinatra
           if object
             exts.each do |ext|
               halt json(object) if ext == :json
-              next unless meth = "to_#{ext}" and object.respond_to? meth
+              next unless meth == "to_#{ext}" and object.respond_to? meth
               halt(*object.send(meth))
             end
           end
