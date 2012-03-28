@@ -118,7 +118,7 @@ module Sinatra
       Module.new do
         extend NamespacedMethods
         include InstanceMethods
-        @base, @extensions    = base, []
+        @base, @extensions, @errors = base, [], {}
         @pattern, @conditions = compile(pattern, conditions)
         @templates            = Hash.new { |h,k| @base.templates[k] }
         namespace = self
@@ -136,12 +136,16 @@ module Sinatra
         super.fetch(:nested, @namespace) { Tilt::Cache.new }
       end
 
-      def error_block!(*keys)
-        if block = keys.inject(nil) { |b,k| b ||= @namespace.errors[k] }
-          instance_eval(&block)
-        else
-          super
-        end
+      def error_block!(key, *block_params)
+        [settings, settings.base].each { |base|
+          while base.respond_to?(:errors)
+            next base = base.superclass unless args = base.errors[key]
+            args += [block_params]
+            return process_route(*args)
+          end
+        }
+        return false unless key.respond_to? :superclass and key.superclass < Exception
+        error_block!(key.superclass, *block_params)
       end
     end
 
@@ -154,7 +158,7 @@ module Sinatra
     module NamespacedMethods
       include SharedMethods
       include Sinatra::Decompile
-      attr_reader :base, :templates
+      attr_reader :base, :templates, :errors
 
       def self.prefixed(*names)
         names.each { |n| define_method(n) { |*a, &b| prefixed(n, *a, &b) }}
@@ -180,16 +184,15 @@ module Sinatra
         @extensions.each { |e| e.send(name, *args) if e.respond_to?(name) }
       end
 
-      def errors
-        @errors ||= {}
-      end
-
       def not_found(&block)
         error(404, &block)
       end
 
-      def error(codes = Exception, &block)
-        [*codes].each { |c| errors[c] = block }
+      def error(*codes, &block)
+        args  = Sinatra::Base.send(:compile!, "ERROR", /^#{@pattern}/, block)
+        codes = codes.map { |c| Array(c) }.flatten
+        codes << Exception if codes.empty?
+        codes.each { |c| @errors[c] = args }
       end
 
       def respond_to(*args)
