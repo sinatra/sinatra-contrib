@@ -135,18 +135,6 @@ module Sinatra
       def template_cache
         super.fetch(:nested, @namespace) { Tilt::Cache.new }
       end
-
-      def error_block!(key, *block_params)
-        [settings, settings.base].each { |base|
-          while base.respond_to?(:errors)
-            next base = base.superclass unless args = base.errors[key]
-            args += [block_params]
-            return process_route(*args)
-          end
-        }
-        return false unless key.respond_to? :superclass and key.superclass < Exception
-        error_block!(key.superclass, *block_params)
-      end
     end
 
     module SharedMethods
@@ -158,7 +146,7 @@ module Sinatra
     module NamespacedMethods
       include SharedMethods
       include Sinatra::Decompile
-      attr_reader :base, :templates, :errors
+      attr_reader :base, :templates
 
       def self.prefixed(*names)
         names.each { |n| define_method(n) { |*a, &b| prefixed(n, *a, &b) }}
@@ -188,6 +176,14 @@ module Sinatra
         error(404, &block)
       end
 
+      def errors
+        base.errors.merge(@errors)
+      end
+
+      def namespace_errors
+        @errors
+      end
+      
       def error(*codes, &block)
         args  = Sinatra::Base.send(:compile!, "ERROR", /^#{@pattern}/, block)
         codes = codes.map { |c| Array(c) }.flatten
