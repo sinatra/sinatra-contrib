@@ -1,0 +1,4 @@
+---
+foo:
+  default: default-foo
+  production: production-foo

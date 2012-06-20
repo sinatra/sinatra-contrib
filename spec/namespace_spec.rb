@@ -598,6 +598,43 @@ describe Sinatra::Namespace do
           b.should_not == 'CUSTOM!!!'
         end
 
+        require 'sinatra/multi_route'
+        it 'is not compatible with MultiRoute extension' do
+          proc do
+            mock_app do
+              register(Sinatra::MultiRoute)
+              namespace('/') do
+                get('foo', 'bar') {'no go'}
+              end
+            end
+          end.should raise_error TypeError, "can't convert String into Hash"
+        end
+
+        it 'is not compatible with MultiRoute extension 2' do
+          mock_app do
+            namespace('/') do
+              register(Sinatra::MultiRoute)
+              get('foo', 'bar') {'ok'}
+            end
+          end
+          if verb == :get
+            send(verb, '/foo').body == 'ok'
+            send(verb, '/bar').status.should == 404
+          end
+        end
+
+        it 'is compatible with MultiRoute#route method though' do
+          mock_app do
+            register(Sinatra::MultiRoute)
+            namespace('/') do
+              route(:get, 'COPY', :post, '*') {'ok'}
+            end
+          end
+          if [:get, :post].any?{|v| v==verb}
+            send(verb, '/foo').body == 'ok'
+          end
+        end
+
         it 'triggers route_added hook' do
           route = nil
           extension = Module.new

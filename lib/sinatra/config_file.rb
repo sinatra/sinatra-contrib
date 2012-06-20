@@ -98,6 +98,16 @@ module Sinatra
   #
   #     set :environments, %w{development test production staging}
   #
+  # It is also possible to supply <tt>default</tt> environment:
+  #     development:
+  #       zoo: zoo
+  #       bar: bar
+  #     default:
+  #       foo: default-foo
+  #       bar: default-bar
+  # , that will give <tt>{:zoo => 'zoo', :bar => 'bar', :foo => 'default-foo'}</tt>
+  # in a development environment
+  # and <tt>{:bar => 'default-bar', :foo => 'default-foo'}</tt> otherwise.
   module ConfigFile
 
     # When the extension is registered sets the +environments+ setting to the
@@ -133,8 +143,17 @@ module Sinatra
     # returned config is a indifferently accessible Hash, which means that you
     # can get its values using Strings or Symbols as keys.
     def config_for_env(hash)
-      if hash.respond_to? :keys and hash.keys.all? { |k| environments.include? k.to_s }
-        hash = hash[environment.to_s] || hash[environment.to_sym]
+      if hash.respond_to? :keys
+        hash_test = hash.keys.delete_if {|k| environments.include? k.to_s}
+        if hash_test.empty? or (hash_test.size == 1 && hash_test.last.to_s == 'default')
+          env_hash = hash[environment.to_s] || hash[environment.to_sym]
+          default_hash = hash['default'] || hash[:default]
+          if env_hash.respond_to?(:to_hash) and default_hash.respond_to?(:to_hash)
+            hash = default_hash.to_hash.merge env_hash.to_hash
+          else
+            hash = env_hash || default_hash
+          end
+        end
       end
 
       if hash.respond_to? :to_hash

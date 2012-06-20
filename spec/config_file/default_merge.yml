@@ -1,0 +1,7 @@
+---
+test:
+  zoo: zoo
+  bar: bar
+default:
+  foo: default-foo
+  bar: default-bar
