@@ -140,7 +140,7 @@ module Sinatra
         hash = hash[environment.to_s] || hash[environment.to_sym]
       end
 
-      if hash.respond_to? :to_hash
+      if hash.respond_to? :to_hash and hash.class != Array
         indifferent_hash = Hash.new {|hash,key| hash[key.to_s] if Symbol === key }
         indifferent_hash.merge hash.to_hash
       else
