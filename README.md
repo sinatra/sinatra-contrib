@@ -38,11 +38,14 @@ Currently included:
 * `sinatra/engine_tracking`: Adds methods like `haml?` that allow helper
   methods to check whether they are called from within a template.
 
-* `sinatra/json`: Adds a `#json` helper method to return JSON documents.
+* `sinatra/json`: See multi_json. This one kept around for
+  backward-compatibility.
 
 * `sinatra/link_header`: Helpers for generating `link` HTML tags and
   corresponding `Link` HTTP headers. Adds `link`, `stylesheet` and `prefetch`
   helper methods.
+
+* `sinatra/multi_json`: Adds a `#json` helper method to return JSON documents.
 
 * `sinatra/multi_route`: Adds ability to define one route block for multiple
   routes and multiple or custom HTTP verbs.

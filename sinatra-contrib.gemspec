@@ -47,6 +47,7 @@ Gem::Specification.new do |s|
     "lib/sinatra/extension.rb",
     "lib/sinatra/json.rb",
     "lib/sinatra/link_header.rb",
+    "lib/sinatra/multi_json.rb",
     "lib/sinatra/multi_route.rb",
     "lib/sinatra/namespace.rb",
     "lib/sinatra/reloader.rb",
@@ -96,6 +97,7 @@ Gem::Specification.new do |s|
     "spec/extension_spec.rb",
     "spec/json_spec.rb",
     "spec/link_header_spec.rb",
+    "spec/multi_json_spec.rb",
     "spec/multi_route_spec.rb",
     "spec/namespace/foo.erb",
     "spec/namespace/nested/foo.erb",
@@ -115,6 +117,7 @@ Gem::Specification.new do |s|
   s.add_dependency "sinatra",   "~> 1.4.0"
   s.add_dependency "backports", ">= 2.0"
   s.add_dependency "tilt",      "~> 1.3"
+  s.add_dependency "multi_json"
   s.add_dependency "rack-test"
   s.add_dependency "rack-protection"
   s.add_dependency "eventmachine"
