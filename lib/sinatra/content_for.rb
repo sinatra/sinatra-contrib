@@ -62,7 +62,13 @@ module Sinatra
   module ContentFor
     include Capture
 
-    # Capture a block of content to be rendered later. For example:
+    # Capture content to be rendered later. For example:
+    #
+    # A string can be captured by specifying a second parameter:
+    #
+    #     <% content_for :title, 'Sinatra' %>
+    #
+    # A block can be captured by passing it in:
     #
     #     <% content_for :head do %>
     #       <script type="text/javascript" src="/foo.js"></script>
@@ -75,8 +81,13 @@ module Sinatra
     #
     # Your blocks can also receive values, which are passed to them
     # by <tt>yield_content</tt>
-    def content_for(key, &block)
-      content_blocks[key.to_sym] << capture_later(&block)
+    def content_for(key, value = nil, &block)
+      raise 'Cannot combine immediate and block content' if value && block
+      if value
+        content_blocks[key.to_sym] << proc { |*a| value }
+      else
+        content_blocks[key.to_sym] << capture_later(&block)
+      end
     end
 
     # Check if a block of content with the given key was defined. For
