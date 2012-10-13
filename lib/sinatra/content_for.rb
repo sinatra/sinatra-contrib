@@ -62,7 +62,13 @@ module Sinatra
   module ContentFor
     include Capture
 
-    # Capture a block of content to be rendered later. For example:
+    # Capture content to be rendered later. For example:
+    #
+    # A string can be captured by specifying a second parameter:
+    #
+    #     <% content_for :title, 'Sinatra' %>
+    #
+    # A block can be captured by passing it in:
     #
     #     <% content_for :head do %>
     #       <script type="text/javascript" src="/foo.js"></script>
