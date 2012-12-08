@@ -134,7 +134,7 @@ module Sinatra
           exts = settings.ext_map[type]
           exts << :xml if type.end_with? '+xml'
           if template
-            args = template_cache.fetch(type, template) { template_for(template, exts) }
+            args = template_cache.fetch(type, template) { template_for(template, exts) }.dup
             if args.any?
               locals = { :object => object }
               locals.merge! object.to_hash if object.respond_to? :to_hash

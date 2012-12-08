@@ -226,6 +226,13 @@ describe Sinatra::RespondWith do
         req(:pdf).should be_ok
         body.should == "hi"
       end
+
+      it 'can call the same template multiple times' do
+        respond_with :foo, :name => 'World'
+        req(:html).should be_ok
+        req(:html).should be_ok
+        body.should == "Hello World!"
+      end
     end
 
     describe 'customizing' do
