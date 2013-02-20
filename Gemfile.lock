@@ -13,6 +13,7 @@ PATH
     sinatra-contrib (1.4.0)
       backports (>= 2.0)
       eventmachine
+      multi_json
       rack-protection
       rack-test
       sinatra (~> 1.4.0)
@@ -27,6 +28,7 @@ GEM
     eventmachine (0.12.10)
     haml (3.1.4)
     json (1.6.5)
+    multi_json (1.3.6)
     rack (1.4.1)
     rack-protection (1.2.0)
       rack

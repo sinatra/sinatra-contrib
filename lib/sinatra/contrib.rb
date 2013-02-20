@@ -16,7 +16,7 @@ module Sinatra
       helpers :ContentFor
       helpers :Cookies
       helpers :EngineTracking
-      helpers :JSON
+      helpers :MultiJSON
       helpers :LinkHeader
       helpers :Streaming
     end
@@ -27,6 +27,7 @@ module Sinatra
       # register :Compass
       register :Decompile
       register :Reloader
+      register :JSON
     end
 
     ##

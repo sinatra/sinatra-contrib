@@ -1,4 +1,4 @@
-require 'sinatra/json'
+require 'sinatra/multi_json'
 require 'sinatra/base'
 
 module Sinatra
@@ -125,7 +125,7 @@ module Sinatra
     end
 
     module Helpers
-      include Sinatra::JSON
+      include Sinatra::MultiJSON
 
       def respond_with(template, object = nil, &block)
         object, template = template, nil unless Symbol === template
