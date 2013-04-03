@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/sinatra/sinatra
-  revision: 9567316944fd03489b93f4e8a4072a2e4932e007
+  revision: 62b6e1f871319089a4b09e172a8add2dbae44bd8
   specs:
-    sinatra (1.4.1)
+    sinatra (1.4.2)
       rack (~> 1.5, >= 1.5.2)
       rack-protection (~> 1.4)
       tilt (~> 1.3, >= 1.3.4)
@@ -15,13 +15,13 @@ PATH
       eventmachine
       rack-protection
       rack-test
-      sinatra (~> 1.4.0)
+      sinatra (~> 1.4.2)
       tilt (~> 1.3)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    backports (3.1.1)
+    backports (3.2.0)
     diff-lcs (1.2.1)
     erubis (2.7.0)
     eventmachine (1.0.3)
@@ -47,7 +47,7 @@ GEM
       temple (~> 0.5.5)
       tilt (~> 1.3.3)
     temple (0.5.5)
-    tilt (1.3.5)
+    tilt (1.3.6)
     yajl-ruby (1.1.0)
 
 PLATFORMS
