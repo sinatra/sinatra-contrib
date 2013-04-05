@@ -30,6 +30,9 @@ Currently included:
 * `sinatra/engine_tracking`: Adds methods like `haml?` that allow helper
   methods to check whether they are called from within a template.
 
+* `sinatra/javascript_header`: Helpers for `script` HTML tags. Adds `javascript`
+  helper method.
+
 * `sinatra/json`: Adds a `#json` helper method to return JSON documents.
 
 * `sinatra/link_header`: Helpers for generating `link` HTML tags and
