@@ -16,6 +16,7 @@ module Sinatra
       helpers :ContentFor
       helpers :Cookies
       helpers :EngineTracking
+      helpers :JavascriptHeader
       helpers :JSON
       helpers :LinkHeader
       helpers :Streaming
