@@ -15,7 +15,7 @@ PATH
       eventmachine
       rack-protection
       rack-test
-      sinatra (~> 1.4.0)
+      sinatra (~> 1.4.2)
       tilt (~> 1.3)
 
 GEM
