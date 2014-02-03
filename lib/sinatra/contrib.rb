@@ -27,6 +27,7 @@ module Sinatra
       # register :Compass
       register :Decompile
       register :Reloader
+      register :RequestLogger
     end
 
     ##
