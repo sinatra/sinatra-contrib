@@ -9,7 +9,7 @@ describe Sinatra::Cookies do
       result = instance_eval(&block)
       "ok"
     end
-    get '/'
+    get '/', {}, @headers || {}
     last_response.should be_ok
     body.should be == "ok"
     result
@@ -97,6 +97,14 @@ describe Sinatra::Cookies do
       end.should include('HttpOnly')
     end
 
+    it 'sets domain to nil if localhost' do
+      @headers = {'HTTP_HOST' => 'localhost'}
+      cookie_route do
+        cookies['foo'] = 'bar'
+        response['Set-Cookie']
+      end.should_not include("domain")
+    end
+
     it 'sets the domain' do
       cookie_route do
         cookies['foo'] = 'bar'
@@ -129,6 +137,28 @@ describe Sinatra::Cookies do
         cookies['foo'] = 'bar'
         cookies['foo']
       end.should be == 'bar'
+    end
+
+    it 'sets a cookie using hash value' do
+      cookie_route do
+        cookies['foo'] = {:value => 'bar'}
+        response['Set-Cookie'].lines.detect { |l| l.start_with? 'foo=bar' }
+      end
+    end
+
+    ["baz.com", "localhost"].each do |domain|
+      it 'sets a cookie options using hash' do
+        cookie_route do
+          cookies['foo'] = {
+            :value => 'bar',
+            :path => '/baz',
+            :domain => domain,
+            :secure => true,
+            :httponly => true
+          }
+          response['Set-Cookie'].lines.detect { |l| l.start_with? 'foo=bar' }
+        end.should include("path=/baz;", "domain=#{domain};", "secure;", "HttpOnly")
+      end
     end
   end
 

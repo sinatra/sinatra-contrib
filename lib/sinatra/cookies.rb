@@ -21,6 +21,21 @@ module Sinatra
   #     redirect to('/')
   #   end
   #
+  # Globally set default cookies options:
+  #
+  #  set :cookie_options,
+  #    :domain => "mydomain.com",
+  #    :path => "/mypath",
+  #    :secure => false,
+  #    :httponly => false
+  #
+  # Write cookie with options:
+  #
+  #   get '/set' do
+  #     cookies[:something] = {:value => 'foobar', :path => "/mypath", :domain => "mydomain.com"}
+  #     redirect to('/')
+  #   end
+  #
   # And generally behaves like a hash:
   #
   #   get '/demo' do
@@ -66,13 +81,11 @@ module Sinatra
         @deleted         = []
 
         @options = {
-          :path     => @request.script_name,
-          :domain   => @request.host,
+          :path     => @request.script_name.to_s.empty? ? '/' : @request.script_name,
+          :domain   => @request.host == 'localhost' ? nil : @request.host,
           :secure   => @request.secure?,
           :httponly => true
         }
-
-        @options[:path] = '/' if @options[:path].to_s.empty?
 
         if app.settings.respond_to? :cookie_options
           @options.merge! app.settings.cookie_options
@@ -88,7 +101,7 @@ module Sinatra
       end
 
       def []=(key, value)
-        @response.set_cookie key.to_s, @options.merge(:value => value)
+        @response.set_cookie key.to_s, @options.merge(value.is_a?(Hash) ? value : {:value => value})
       end
 
       def assoc(key)
