@@ -1,3 +1,4 @@
+require "json"
 module Sinatra
   # = Sinatra::RequestLogger
   #
@@ -46,7 +47,7 @@ module Sinatra
           "Starting #{request.request_method} #{request.path}#{request_query_string} for #{request.ip}"
         )
         unless request.body.read.empty?
-          logger.info("Parameters: #{JSON.parse(request.body.read)}")
+          logger.info("Parameters: #{::JSON.parse(request.body.read)}")
         end
         request.body.rewind
       end
