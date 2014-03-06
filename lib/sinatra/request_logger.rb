@@ -46,10 +46,6 @@ module Sinatra
         logger.info(
           "Starting #{request.request_method} #{request.path}#{request_query_string} for #{request.ip}"
         )
-        unless request.body.read.empty?
-          logger.info("Parameters: #{::JSON.parse(request.body.read)}")
-        end
-        request.body.rewind
       end
 
       app.after do
