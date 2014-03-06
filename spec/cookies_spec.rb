@@ -142,8 +142,8 @@ describe Sinatra::Cookies do
     it 'sets a cookie using hash value' do
       cookie_route do
         cookies['foo'] = {:value => 'bar'}
-        response['Set-Cookie'].lines.detect { |l| l.start_with? 'foo=bar' }
-      end
+        response['Set-Cookie'].lines.detect { |l| l.start_with? 'foo=' }
+      end.should include('foo=bar')
     end
 
     ["baz.com", "localhost"].each do |domain|
