@@ -1,0 +1,1 @@
+ruby-<%= ruby_version %><%= ruby_revision.nil? ? "" : "-#{ruby_revision}" %>

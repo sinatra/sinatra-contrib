@@ -13,6 +13,7 @@ group :development, :test do
   end
 
   gem 'multi_json'
+  gem 'thor'
 end
 
 # Allows stuff like `tilt=1.2.2 bundle install` or `tilt=master ...`.

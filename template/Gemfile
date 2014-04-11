@@ -1,0 +1,12 @@
+source 'http://rubygems.org'
+
+ruby '<%= ruby_version %>'
+
+gem 'sinatra'
+gem 'sinatra-contrib'
+
+group :development, :test do
+  gem 'bundler'
+  gem 'rspec'
+  gem 'rack-test'
+end
