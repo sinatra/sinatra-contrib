@@ -5,10 +5,10 @@ module Sinatra
   class Generator < Thor::Group
     include Thor::Actions
 
-    argument :name, optional: false
-    argument :target_directory, optional: true
-    argument :ruby_version, optional: true, default: '2.0.0'
-    argument :ruby_revision, optional: true, default: 'p353'
+    argument :name, :optional => false
+    argument :target_directory, :optional => true
+    argument :ruby_version, :optional => true, :default => '2.0.0'
+    argument :ruby_revision, :optional => true, :default => 'p353'
 
     def self.source_root
       File.expand_path(Dir.getwd)
