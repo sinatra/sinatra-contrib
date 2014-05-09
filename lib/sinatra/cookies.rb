@@ -1,5 +1,6 @@
 require 'sinatra/base'
-require 'backports'
+require 'backports/1.9.2/hash/select'
+require 'backports/1.9.1/hash/key'
 
 module Sinatra
   # = Sinatra::Cookies

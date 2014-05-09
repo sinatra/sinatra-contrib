@@ -1,5 +1,6 @@
 require 'sinatra/base'
-require 'backports'
+require 'backports/1.9.1/string/chr'
+require 'backports/1.8.7/enumerator/each'
 
 module Sinatra
 

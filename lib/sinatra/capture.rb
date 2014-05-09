@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'sinatra/engine_tracking'
-require 'backports'
+require 'backports/rails/kernel'
+require 'backports/1.9.1/string/clear'
 
 module Sinatra
   #
