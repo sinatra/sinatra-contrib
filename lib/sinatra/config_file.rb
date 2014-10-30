@@ -127,7 +127,7 @@ module Sinatra
       Dir.chdir(root || '.') do
         paths.each do |pattern|
           Dir.glob(pattern) do |file|
-            $stderr.puts "loading config file '#{file}'" if logging?
+            logger.info "Loading configuration file '#{file}'"
             document = IO.read(file)
             document = ERB.new(document).result if file.split('.').include?('erb')
             yaml = config_for_env(YAML.load(document)) || {}
