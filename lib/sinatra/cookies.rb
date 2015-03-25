@@ -109,7 +109,7 @@ module Sinatra
 
       def delete(key)
         result = self[key]
-        @response.delete_cookie(key.to_s, @options)
+        @response.delete_cookie(key.to_s, @options.merge(expires: Time.new(0)))
         result
       end
 
