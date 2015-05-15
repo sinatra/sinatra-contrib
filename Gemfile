@@ -12,6 +12,7 @@ group :development, :test do
 
   platform :jruby do
     gem 'therubyrhino'
+    gem 'json_pure'
   end
 
   platform :jruby, :ruby do
