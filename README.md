@@ -61,6 +61,8 @@ Currently included:
 
 * `sinatra/reloader`: Automatically reloads Ruby files on code changes.
 
+* `sinatra/request_logger`: Logs request and response information.
+
 ## Other Tools
 
 * `sinatra/extension`: Mixin for writing your own Sinatra extensions.
@@ -69,7 +71,7 @@ Currently included:
   application. Partly extracted from Sinatra. Testing framework agnostic
 
 # Installation
-Add `gem 'sinatra-contrib'` to *Gemfile*, then execute `bundle install`.  
+Add `gem 'sinatra-contrib'` to *Gemfile*, then execute `bundle install`.
 
 If you don't use Bundler, install the gem manually by executing `gem install sinatra-contrib` in your command line.
 
