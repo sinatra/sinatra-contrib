@@ -4,6 +4,8 @@ Collection of common Sinatra extensions, semi-officially supported.
 
 # Goals
 
+[![Join the chat at https://gitter.im/sinatra/sinatra-contrib](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sinatra/sinatra-contrib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 * For every future Sinatra release, have at least one fully compatible release
 * High code quality, high test coverage
 * Include plugins people usually ask for a lot
