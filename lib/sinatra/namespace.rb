@@ -1,4 +1,4 @@
-require 'backports'
+require 'backports/1.9.2/kernel/singleton_class'
 require 'sinatra/base'
 require 'sinatra/decompile'
 

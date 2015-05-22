@@ -1,4 +1,5 @@
-require 'backports'
+require 'backports/1.9.1/kernel/public_send'
+require 'backports/1.9.1/enumerator/new'
 require 'spec_helper'
 
 describe Sinatra::Streaming do

@@ -1,5 +1,5 @@
 require 'sinatra/base'
-require 'backports'
+require 'backports/rails/kernel'
 require 'uri'
 
 module Sinatra
