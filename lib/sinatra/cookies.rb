@@ -85,8 +85,9 @@ module Sinatra
         response_cookies[key.to_s] || request_cookies[key.to_s]
       end
 
-      def []=(key, value)
-        @response.set_cookie key.to_s, @options.merge(:value => value)
+      def []=(key, options)
+        options = { :value => options } if options.kind_of? String
+        @response.set_cookie key.to_s, @options.merge(options)
       end
 
       def assoc(key)
