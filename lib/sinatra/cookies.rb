@@ -85,7 +85,11 @@ module Sinatra
         response_cookies[key.to_s] || request_cookies[key.to_s]
       end
 
-      def []=(key, value, options = {})
+      def []=(key, value)
+        set key, value
+      end
+
+      def set(key, value, options = {})
         @response.set_cookie key.to_s, @options.merge(options).merge(:value => value)
       end
 
