@@ -86,7 +86,11 @@ module Sinatra
       end
 
       def []=(key, value)
-        @response.set_cookie key.to_s, @options.merge(:value => value)
+        set key, value
+      end
+
+      def set(key, value, options = {})
+        @response.set_cookie key.to_s, @options.merge(options).merge(:value => value)
       end
 
       def assoc(key)
