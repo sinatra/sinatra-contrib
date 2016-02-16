@@ -23,6 +23,8 @@ matrix:
     - rvm: jruby-head
     - rvm: rbx
     - env: sinatra=master
+before_install:
+  - gem update bundler
 notifications:
   recipients:
     - _@trevorbramble.com
