@@ -6,7 +6,7 @@ rvm:
   - 2.0.0
   - 2.1
   - 2.2
-  - 2.3
+  - 2.3.0
   - rbx
   - jruby
   - jruby-head
@@ -23,6 +23,8 @@ matrix:
     - rvm: jruby-head
     - rvm: rbx
     - env: sinatra=master
+before_install:
+  - gem update bundler
 notifications:
   recipients:
     - _@trevorbramble.com
