@@ -118,7 +118,7 @@ module Sinatra
     # When the extension is registered sets the +environments+ setting to the
     # traditional environments: development, test and production.
     def self.registered(base)
-      base.set :environments, %w[test production development]
+      base.set :environments, %w[test production development] unless base.respond_to? :environments
     end
 
     # Loads the configuration from the YAML files whose +paths+ are passed as
