@@ -48,3 +48,4 @@ repos = { 'tilt' => github % "rtomayko/tilt", 'rack' => github % "rack/rack" }
   gem lib, dep unless dep
 end
 
+gem 'rake', '~> 10.x'
