@@ -1,7 +1,6 @@
 require 'sinatra/base'
 require 'multi_json'
 module Sinatra
-
   # = Sinatra::JSON
   #
   # <tt>Sinatra::JSON</tt> adds a helper method, called +json+, for (obviously)
@@ -95,7 +94,7 @@ module Sinatra
 
     def json(object, options = {})
       content_type resolve_content_type(options)
-      resolve_encoder_action  object, resolve_encoder(options)
+      resolve_encoder_action object, resolve_encoder(options)
     end
 
     private
@@ -114,11 +113,11 @@ module Sinatra
       end
       if encoder.is_a? Symbol
         object.__send__(encoder)
-      else 
-        fail "#{encoder} does not respond to #generate nor #encode"
-      end #if
-    end #resolve_encoder_action  
-  end #JSON
+      else
+        raise "#{encoder} does not respond to #generate nor #encode"
+      end # if
+    end # resolve_encoder_action
+  end # JSON
 
   Base.set :json_encoder do
     ::MultiJson

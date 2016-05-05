@@ -1,5 +1,4 @@
 module Sinatra
-
   # = Sinatra::CustomLogger
   #
   # CustomLogger extension allows you to define your own logger instance

@@ -1,15 +1,14 @@
 require 'spec_helper'
 
 describe Sinatra::MultiRoute do
-
   it 'does not break normal routing' do
     mock_app do
       register Sinatra::MultiRoute
       get('/') { 'normal' }
     end
 
-    get('/').should be_ok
-    body.should be == 'normal'
+    expect(get('/')).to be_ok
+    expect(body).to eq('normal')
   end
 
   it 'supports multiple routes' do
@@ -18,10 +17,10 @@ describe Sinatra::MultiRoute do
       get('/foo', '/bar') { 'paths' }
     end
 
-    get('/foo').should be_ok
-    body.should be == 'paths'
-    get('/bar').should be_ok
-    body.should be == 'paths'
+    expect(get('/foo')).to be_ok
+    expect(body).to eq('paths')
+    expect(get('/bar')).to be_ok
+    expect(body).to eq('paths')
   end
 
   it 'triggers conditions' do
@@ -29,10 +28,10 @@ describe Sinatra::MultiRoute do
     mock_app do
       register Sinatra::MultiRoute
       set(:some_condition) { |_| count += 1 }
-      get('/foo', '/bar', :some_condition => true) { 'paths' }
+      get('/foo', '/bar', some_condition: true) { 'paths' }
     end
 
-    count.should be == 4
+    expect(count).to eq(4)
   end
 
   it 'supports multiple verbs' do
@@ -41,10 +40,10 @@ describe Sinatra::MultiRoute do
       route('PUT', 'POST', '/') { 'verb' }
     end
 
-    post('/').should be_ok
-    body.should be == 'verb'
-    put('/').should be_ok
-    body.should be == 'verb'
+    expect(post('/')).to be_ok
+    expect(body).to eq('verb')
+    expect(put('/')).to be_ok
+    expect(body).to eq('verb')
   end
 
   it 'takes symbols as verbs' do
@@ -53,7 +52,7 @@ describe Sinatra::MultiRoute do
       route(:get, '/baz') { 'symbol as verb' }
     end
 
-    get('/baz').should be_ok
-    body.should be == 'symbol as verb'
+    expect(get('/baz')).to be_ok
+    expect(body).to eq('symbol as verb')
   end
 end

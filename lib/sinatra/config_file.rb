@@ -3,7 +3,6 @@ require 'yaml'
 require 'erb'
 
 module Sinatra
-
   # = Sinatra::ConfigFile
   #
   # <tt>Sinatra::ConfigFile</tt> is an extension that allows you to load the
@@ -114,11 +113,10 @@ module Sinatra
   #       bar: 'baz' # override the default value
   #
   module ConfigFile
-
     # When the extension is registered sets the +environments+ setting to the
     # traditional environments: development, test and production.
     def self.registered(base)
-      base.set :environments, %w[test production development]
+      base.set :environments, %w(test production development)
     end
 
     # Loads the configuration from the YAML files whose +paths+ are passed as
@@ -134,7 +132,7 @@ module Sinatra
             yaml = config_for_env(YAML.load(document)) || {}
             yaml.each_pair do |key, value|
               for_env = config_for_env(value)
-              set key, for_env unless value and for_env.nil? and respond_to? key
+              set key, for_env unless value && for_env.nil? && respond_to?(key)
             end
           end
         end
@@ -150,12 +148,12 @@ module Sinatra
     # returned config is a indifferently accessible Hash, which means that you
     # can get its values using Strings or Symbols as keys.
     def config_for_env(hash)
-      if hash.respond_to? :keys and hash.keys.all? { |k| environments.include? k.to_s }
+      if hash.respond_to?(:keys) && hash.keys.all? { |k| environments.include? k.to_s }
         hash = hash[environment.to_s] || hash[environment.to_sym]
       end
 
       if hash.respond_to? :to_hash
-        indifferent_hash = Hash.new {|hash,key| hash[key.to_s] if Symbol === key }
+        indifferent_hash = Hash.new { |h, key| h[key.to_s] if Symbol === key }
         indifferent_hash.merge hash.to_hash
       else
         hash

@@ -1,7 +1,7 @@
 require 'sinatra/base'
 
+# Docs
 module Sinatra
-
   # = Sinatra::WebDAV
   #
   # This extensions provides WebDAV verbs, as defined by RFC 4918
@@ -34,18 +34,19 @@ module Sinatra
       Sinatra::Request.include WebDAV::Request
     end
 
+    # Docs
     module Request
       def self.included(base)
         base.class_eval do
-          alias _safe? safe?
-          alias _idempotent? idempotent?
+          alias_method :_safe?, :safe?
+          alias_method :_idempotent?, :idempotent?
 
           def safe?
-            _safe? or propfind?
+            _safe? || propfind?
           end
 
           def idempotent?
-            _idempotent? or propfind? or move? or unlock? # or lock?
+            _idempotent? || propfind? || move? || unlock? # or lock?
           end
         end
       end
@@ -70,22 +71,39 @@ module Sinatra
         request_method == 'MOVE'
       end
 
-      #def lock?
+      # def lock?
       #  request_method == 'LOCK'
-      #end
+      # end
 
       def unlock?
         request_method == 'UNLOCK'
       end
     end
 
-    def propfind(path, opts = {}, &bk)  route 'PROPFIND',  path, opts, &bk end
-    def proppatch(path, opts = {}, &bk) route 'PROPPATCH', path, opts, &bk end
-    def mkcol(path, opts = {}, &bk)     route 'MKCOL',     path, opts, &bk end
-    def copy(path, opts = {}, &bk)      route 'COPY',      path, opts, &bk end
-    def move(path, opts = {}, &bk)      route 'MOVE',      path, opts, &bk end
-    #def lock(path, opts = {}, &bk)      route 'LOCK',      path, opts, &bk end
-    def unlock(path, opts = {}, &bk)    route 'UNLOCK',    path, opts, &bk end
+    def propfind(path, opts = {}, &bk)
+      route 'PROPFIND',  path, opts, &bk
+    end
+
+    def proppatch(path, opts = {}, &bk)
+      route 'PROPPATCH', path, opts, &bk
+    end
+
+    def mkcol(path, opts = {}, &bk)
+      route 'MKCOL',     path, opts, &bk
+    end
+
+    def copy(path, opts = {}, &bk)
+      route 'COPY',      path, opts, &bk
+    end
+
+    def move(path, opts = {}, &bk)
+      route 'MOVE',      path, opts, &bk
+    end
+
+    # def lock(path, opts = {}, &bk)      route 'LOCK',      path, opts, &bk end
+    def unlock(path, opts = {}, &bk)
+      route 'UNLOCK',    path, opts, &bk
+    end
   end
 
   register WebDAV

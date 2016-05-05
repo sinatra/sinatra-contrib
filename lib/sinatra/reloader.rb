@@ -1,7 +1,6 @@
 require 'sinatra/base'
 
 module Sinatra
-
   # = Sinatra::Reloader
   #
   # Extension to reload modified files.  Useful during development,
@@ -87,11 +86,9 @@ module Sinatra
   #     end
   #
   module Reloader
-
     # Watches a file so it can tell when it has been updated, and what
     # elements does it contain.
     class Watcher
-
       # Represents an element of a Sinatra application that may need to
       # be reloaded.  An element could be:
       # * a route
@@ -165,7 +162,8 @@ module Sinatra
       # Creates a new +Watcher+ instance for the file located at +path+.
       def initialize(path)
         @ignore = nil
-        @path, @elements = path, []
+        @path = path
+        @elements = []
         update
       end
 
@@ -194,7 +192,7 @@ module Sinatra
       # Indicates whether or not the modifications to the file being
       # watched should be ignored.
       def ignore?
-        !!@ignore
+        @ignore
       end
 
       # Indicates whether or not the file being watched has been removed.
@@ -256,11 +254,10 @@ module Sinatra
       # Note: We are using #compile! so we don't interfere with extensions
       # changing #route.
       def compile!(verb, path, block, options = {})
-        source_location = block.respond_to?(:source_location) ?
-          block.source_location.first : caller_files[1]
+        source_location = block.respond_to?(:source_location) ? block.source_location.first : caller_files[1]
         signature = super
         watch_element(
-          source_location, :route, { :verb => verb, :signature => signature }
+          source_location, :route, verb: verb, signature: signature
         )
         signature
       end
@@ -269,9 +266,8 @@ module Sinatra
       # tells the +Watcher::List+ for the Sinatra application to watch the
       # inline templates in +file+ or the file who made the call to this
       # method.
-      def inline_templates=(file=nil)
-        file = (file.nil? || file == true) ?
-          (caller_files[1] || File.expand_path($0)) : file
+      def inline_templates=(file = nil)
+        file = (file.nil? || file == true) ? (caller_files[1] || File.expand_path($PROGRAM_NAME)) : file
         watch_element(file, :inline_templates)
         super
       end
@@ -280,7 +276,7 @@ module Sinatra
       # +Watcher::List+ for the Sinatra application to watch the middleware
       # being used.
       def use(middleware, *args, &block)
-        path = caller_files[1] || File.expand_path($0)
+        path = caller_files[1] || File.expand_path($PROGRAM_NAME)
         watch_element(path, :middleware, [middleware, args, block])
         super
       end
@@ -289,8 +285,7 @@ module Sinatra
       # the +Watcher::List+ for the Sinatra application to watch the defined
       # filter.
       def add_filter(type, path = nil, options = {}, &block)
-        source_location = block.respond_to?(:source_location) ?
-          block.source_location.first : caller_files[1]
+        source_location = block.respond_to?(:source_location) ? block.source_location.first : caller_files[1]
         result = super
         watch_element(source_location, :"#{type}_filter", filters[type].last)
         result
@@ -300,10 +295,10 @@ module Sinatra
       # +Watcher::List+ for the Sinatra application to watch the defined
       # error handler.
       def error(*codes, &block)
-        path = caller_files[1] || File.expand_path($0)
+        path = caller_files[1] || File.expand_path($PROGRAM_NAME)
         result = super
         codes.each do |c|
-          watch_element(path, :error, :code => c, :handler => @errors[c])
+          watch_element(path, :error, code: c, handler: @errors[c])
         end
         result
       end
@@ -361,10 +356,12 @@ module Sinatra
         Dir[*glob].each { |path| Watcher::List.for(self).ignore(path) }
       end
 
-    private
+      private
 
       # attr_reader :register_path warn on -w (private attribute)
-      def register_path; @register_path ||= nil; end
+      def register_path
+        @register_path ||= nil
+      end
 
       # Indicates an extesion is being registered.
       def start_registering_extension
@@ -389,7 +386,7 @@ module Sinatra
       # watch it in the file where the extension has been registered.
       # This prevents the duplication of the elements added by the
       # extension in its +registered+ method with every reload.
-      def watch_element(path, type, representation=nil)
+      def watch_element(path, type, representation = nil)
         list = Watcher::List.for(self)
         element = Watcher::Element.new(type, representation)
         list.watch(path, element)

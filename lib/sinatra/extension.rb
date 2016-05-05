@@ -2,7 +2,6 @@ require 'sinatra/base'
 require 'backports/basic_object' unless defined? BasicObject
 
 module Sinatra
-
   # = Sinatra::Extension
   #
   # <tt>Sinatra::Extension</tt> is a mixin that provides some syntactic sugar
@@ -87,9 +86,17 @@ module Sinatra
     end
 
     class DontCall < BasicObject
-      def initialize(method) @method = method end
-      def method_missing(*) fail "not supposed to use result of #@method!" end
-      def inspect; "#<#{self.class}: #{@method}>" end
+      def initialize(method)
+        @method = method
+      end
+
+      def method_missing(*)
+        raise "not supposed to use result of #{@method}!"
+      end
+
+      def inspect
+        "#<#{self.class}: #{@method}>"
+      end
     end
   end
 end

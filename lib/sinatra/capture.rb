@@ -86,25 +86,26 @@ module Sinatra
     include Sinatra::EngineTracking
 
     DUMMIES = {
-      :haml   => "!= capture_haml(*args, &block)",
-      :erubis => "<% @capture = yield(*args) %>",
-      :slim   => "== yield(*args)"
-    }
+      haml: '!= capture_haml(*args, &block)',
+      erubis: '<% @capture = yield(*args) %>',
+      slim: '== yield(*args)'
+    }.freeze
 
     def capture(*args, &block)
       @capture = nil
       if current_engine == :ruby
         result = block[*args]
       elsif current_engine == :erb || current_engine == :slim
-        @_out_buf, _buf_was = '', @_out_buf
+        buf_was = @_out_buf
+        @_out_buf = ''
         block[*args]
         result = eval('@_out_buf', block.binding)
-        @_out_buf = _buf_was
+        @_out_buf = buf_was
       else
         buffer     = eval '_buf if defined?(_buf)', block.binding
         old_buffer = buffer.dup if buffer
         dummy      = DUMMIES.fetch(current_engine)
-        options    = { :layout => false, :locals => {:args => args, :block => block }}
+        options    = { layout: false, locals: { args: args, block: block } }
 
         buffer.try :clear
         result = render(current_engine, dummy, options, &block)
@@ -116,7 +117,7 @@ module Sinatra
 
     def capture_later(&block)
       engine = current_engine
-      proc { |*a| with_engine(engine) { @capture = capture(*a, &block) }}
+      proc { |*a| with_engine(engine) { @capture = capture(*a, &block) } }
     end
   end
 
