@@ -36,7 +36,7 @@ describe Sinatra::Reloader do
   #
   # It ensures to change the written file's mtime when it already
   # exists.
-  def write_app_file(options={})
+  def write_app_file(options = {})
     options[:routes] ||= ['get("/foo") { erb :foo }']
     options[:inline_templates] ||= nil
     options[:extensions] ||= []
@@ -44,17 +44,17 @@ describe Sinatra::Reloader do
     options[:filters] ||= []
     options[:errors] ||= {}
     options[:name] ||= app_name
-    options[:enable_reloader] = true unless options[:enable_reloader] === false
+    options[:enable_reloader] = true unless options[:enable_reloader] == false
     options[:parent] ||= 'Sinatra::Base'
 
     update_file(app_file_path) do |f|
       template_path = File.expand_path('../reloader/app.rb.erb', __FILE__)
-      template = Tilt.new(template_path, nil, :trim => '<>')
+      template = Tilt.new(template_path, nil, trim: '<>')
       f.write template.render(Object.new, options)
     end
   end
 
-  alias update_app_file write_app_file
+  alias_method :update_app_file, :write_app_file
 
   # It calls <tt>File.open(path, 'w', &block)</tt> all the times
   # needed to change the file's mtime.
@@ -68,7 +68,7 @@ describe Sinatra::Reloader do
   # Writes a Sinatra application to a file, requires the file, sets
   # the new application as the one being tested and enables the
   # reloader.
-  def setup_example_app(options={})
+  def setup_example_app(options = {})
     $example_app_counter ||= 0
     $example_app_counter += 1
 
@@ -82,296 +82,296 @@ describe Sinatra::Reloader do
 
   after(:all) { FileUtils.rm_rf(tmp_dir) }
 
-  describe "default route reloading mechanism" do
+  describe 'default route reloading mechanism' do
     before(:each) do
-      setup_example_app(:routes => ['get("/foo") { "foo" }'])
+      setup_example_app(routes: ['get("/foo") { "foo" }'])
     end
 
     it "doesn't mess up the application" do
-      get('/foo').body.should == 'foo'
+      expect(get('/foo').body).to eq('foo')
     end
 
-    it "knows when a route has been modified" do
-      update_app_file(:routes => ['get("/foo") { "bar" }'])
-      get('/foo').body.should == 'bar'
+    it 'knows when a route has been modified' do
+      update_app_file(routes: ['get("/foo") { "bar" }'])
+      expect(get('/foo').body).to eq('bar')
     end
 
-    it "knows when a route has been added" do
+    it 'knows when a route has been added' do
       update_app_file(
-        :routes => ['get("/foo") { "foo" }', 'get("/bar") { "bar" }']
+        routes: ['get("/foo") { "foo" }', 'get("/bar") { "bar" }']
       )
-      get('/foo').body.should == 'foo'
-      get('/bar').body.should == 'bar'
+      expect(get('/foo').body).to eq('foo')
+      expect(get('/bar').body).to eq('bar')
     end
 
-    it "knows when a route has been removed" do
-      update_app_file(:routes => ['get("/bar") { "bar" }'])
-      get('/foo').status.should == 404
+    it 'knows when a route has been removed' do
+      update_app_file(routes: ['get("/bar") { "bar" }'])
+      expect(get('/foo').status).to eq(404)
     end
 
     it "doesn't try to reload a removed file" do
-      update_app_file(:routes => ['get("/foo") { "i shall not be reloaded" }'])
+      update_app_file(routes: ['get("/foo") { "i shall not be reloaded" }'])
       FileUtils.rm app_file_path
-      get('/foo').body.strip.should == 'foo'
+      expect(get('/foo').body.strip).to eq('foo')
     end
   end
 
-  describe "default inline templates reloading mechanism" do
+  describe 'default inline templates reloading mechanism' do
     before(:each) do
       setup_example_app(
-        :routes => ['get("/foo") { erb :foo }'],
-        :inline_templates => { :foo => 'foo' }
+        routes: ['get("/foo") { erb :foo }'],
+        inline_templates: { foo: 'foo' }
       )
     end
 
     it "doesn't mess up the application" do
-      get('/foo').body.strip.should == 'foo'
+      expect(get('/foo').body.strip).to eq('foo')
     end
 
-    it "reloads inline templates in the app file" do
+    it 'reloads inline templates in the app file' do
       update_app_file(
-        :routes => ['get("/foo") { erb :foo }'],
-        :inline_templates => { :foo => 'bar' }
+        routes: ['get("/foo") { erb :foo }'],
+        inline_templates: { foo: 'bar' }
       )
-      get('/foo').body.strip.should == 'bar'
+      expect(get('/foo').body.strip).to eq('bar')
     end
 
-    it "reloads inline templates in other file" do
-      setup_example_app(:routes => ['get("/foo") { erb :foo }'])
+    it 'reloads inline templates in other file' do
+      setup_example_app(routes: ['get("/foo") { erb :foo }'])
       template_file_path = File.join(tmp_dir, 'templates.rb')
       File.open(template_file_path, 'w') do |f|
         f.write "__END__\n\n@@foo\nfoo"
       end
       require template_file_path
-      app_const.inline_templates= template_file_path
-      get('/foo').body.strip.should == 'foo'
+      app_const.inline_templates = template_file_path
+      expect(get('/foo').body.strip).to eq('foo')
       update_file(template_file_path) do |f|
         f.write "__END__\n\n@@foo\nbar"
       end
-      get('/foo').body.strip.should == 'bar'
+      expect(get('/foo').body.strip).to eq('bar')
     end
   end
 
-  describe "default middleware reloading mechanism" do
-    it "knows when a middleware has been added" do
-      setup_example_app(:routes => ['get("/foo") { "foo" }'])
+  describe 'default middleware reloading mechanism' do
+    it 'knows when a middleware has been added' do
+      setup_example_app(routes: ['get("/foo") { "foo" }'])
       update_app_file(
-        :routes => ['get("/foo") { "foo" }'],
-        :middlewares => [Rack::Head]
+        routes: ['get("/foo") { "foo" }'],
+        middlewares: [Rack::Head]
       )
       get('/foo') # ...to perform the reload
-      app_const.middleware.should_not be_empty
+      expect(app_const.middleware).not_to be_empty
     end
 
-    it "knows when a middleware has been removed" do
+    it 'knows when a middleware has been removed' do
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :middlewares => [Rack::Head]
+        routes: ['get("/foo") { "foo" }'],
+        middlewares: [Rack::Head]
       )
-      update_app_file(:routes => ['get("/foo") { "foo" }'])
+      update_app_file(routes: ['get("/foo") { "foo" }'])
       get('/foo') # ...to perform the reload
-      app_const.middleware.should be_empty
+      expect(app_const.middleware).to be_empty
     end
   end
 
-  describe "default filter reloading mechanism" do
-    it "knows when a before filter has been added" do
-      setup_example_app(:routes => ['get("/foo") { "foo" }'])
-      expect {
+  describe 'default filter reloading mechanism' do
+    it 'knows when a before filter has been added' do
+      setup_example_app(routes: ['get("/foo") { "foo" }'])
+      expect do
         update_app_file(
-          :routes => ['get("/foo") { "foo" }'],
-          :filters => ['before { @hi = "hi" }']
+          routes: ['get("/foo") { "foo" }'],
+          filters: ['before { @hi = "hi" }']
         )
         get('/foo') # ...to perform the reload
-      }.to change { app_const.filters[:before].size }.by(1)
+      end.to change { app_const.filters[:before].size }.by(1)
     end
 
-    it "knows when an after filter has been added" do
-      setup_example_app(:routes => ['get("/foo") { "foo" }'])
-      expect {
+    it 'knows when an after filter has been added' do
+      setup_example_app(routes: ['get("/foo") { "foo" }'])
+      expect do
         update_app_file(
-          :routes => ['get("/foo") { "foo" }'],
-          :filters => ['after { @bye = "bye" }']
+          routes: ['get("/foo") { "foo" }'],
+          filters: ['after { @bye = "bye" }']
         )
         get('/foo') # ...to perform the reload
-      }.to change { app_const.filters[:after].size }.by(1)
+      end.to change { app_const.filters[:after].size }.by(1)
     end
 
-    it "knows when a before filter has been removed" do
+    it 'knows when a before filter has been removed' do
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :filters => ['before { @hi = "hi" }']
+        routes: ['get("/foo") { "foo" }'],
+        filters: ['before { @hi = "hi" }']
       )
-      expect {
-        update_app_file(:routes => ['get("/foo") { "foo" }'])
+      expect do
+        update_app_file(routes: ['get("/foo") { "foo" }'])
         get('/foo') # ...to perform the reload
-      }.to change { app_const.filters[:before].size }.by(-1)
+      end.to change { app_const.filters[:before].size }.by(-1)
     end
 
-    it "knows when an after filter has been removed" do
+    it 'knows when an after filter has been removed' do
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :filters => ['after { @bye = "bye" }']
+        routes: ['get("/foo") { "foo" }'],
+        filters: ['after { @bye = "bye" }']
       )
-      expect {
-        update_app_file(:routes => ['get("/foo") { "foo" }'])
+      expect do
+        update_app_file(routes: ['get("/foo") { "foo" }'])
         get('/foo') # ...to perform the reload
-      }.to change { app_const.filters[:after].size }.by(-1)
+      end.to change { app_const.filters[:after].size }.by(-1)
     end
   end
 
-  describe "error reloading" do
+  describe 'error reloading' do
     before do
       setup_example_app(
-        :routes => ['get("/secret") { 403 }'],
-        :errors => { 403 => "'Access forbiden'" }
+        routes: ['get("/secret") { 403 }'],
+        errors: { 403 => "'Access forbiden'" }
       )
     end
 
     it "doesn't mess up the application" do
-      get('/secret').should be_client_error
-      get('/secret').body.strip.should == 'Access forbiden'
+      expect(get('/secret')).to be_client_error
+      expect(get('/secret').body.strip).to eq('Access forbiden')
     end
 
-    it "knows when a error has been added" do
-      update_app_file(:errors => { 404 => "'Nowhere'" })
-      get('/nowhere').should be_not_found
-      get('/nowhere').body.should == 'Nowhere'
+    it 'knows when a error has been added' do
+      update_app_file(errors: { 404 => "'Nowhere'" })
+      expect(get('/nowhere')).to be_not_found
+      expect(get('/nowhere').body).to eq('Nowhere')
     end
 
-    it "knows when a error has been removed" do
-      update_app_file(:routes => ['get("/secret") { 403 }'])
-      get('/secret').should be_client_error
-      get('/secret').body.should_not == 'Access forbiden'
+    it 'knows when a error has been removed' do
+      update_app_file(routes: ['get("/secret") { 403 }'])
+      expect(get('/secret')).to be_client_error
+      expect(get('/secret').body).not_to eq('Access forbiden')
     end
 
-    it "knows when a error has been modified" do
+    it 'knows when a error has been modified' do
       update_app_file(
-        :routes => ['get("/secret") { 403 }'],
-        :errors => { 403 => "'What are you doing here?'" }
+        routes: ['get("/secret") { 403 }'],
+        errors: { 403 => "'What are you doing here?'" }
       )
-      get('/secret').should be_client_error
-      get('/secret').body.should == 'What are you doing here?'
+      expect(get('/secret')).to be_client_error
+      expect(get('/secret').body).to eq('What are you doing here?')
     end
   end
 
-  describe "extension reloading" do
+  describe 'extension reloading' do
     it "doesn't duplicate routes with every reload" do
-      module ::RouteExtension
+      module RouteExtension
         def self.registered(klass)
           klass.get('/bar') { 'bar' }
         end
       end
 
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :extensions => ['RouteExtension']
+        routes: ['get("/foo") { "foo" }'],
+        extensions: ['RouteExtension']
       )
 
-      expect {
+      expect do
         update_app_file(
-          :routes => ['get("/foo") { "foo" }'],
-          :extensions => ['RouteExtension']
+          routes: ['get("/foo") { "foo" }'],
+          extensions: ['RouteExtension']
         )
         get('/foo') # ...to perform the reload
-      }.to_not change { app_const.routes['GET'].size }
+      end.to_not change { app_const.routes['GET'].size }
     end
 
     it "doesn't duplicate middleware with every reload" do
-      module ::MiddlewareExtension
+      module MiddlewareExtension
         def self.registered(klass)
           klass.use Rack::Head
         end
       end
 
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :extensions => ['MiddlewareExtension']
+        routes: ['get("/foo") { "foo" }'],
+        extensions: ['MiddlewareExtension']
       )
 
-      expect {
+      expect do
         update_app_file(
-          :routes => ['get("/foo") { "foo" }'],
-          :extensions => ['MiddlewareExtension']
+          routes: ['get("/foo") { "foo" }'],
+          extensions: ['MiddlewareExtension']
         )
         get('/foo') # ...to perform the reload
-      }.to_not change { app_const.middleware.size }
+      end.to_not change { app_const.middleware.size }
     end
 
     it "doesn't duplicate before filters with every reload" do
-      module ::BeforeFilterExtension
+      module BeforeFilterExtension
         def self.registered(klass)
           klass.before { @hi = 'hi' }
         end
       end
 
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :extensions => ['BeforeFilterExtension']
+        routes: ['get("/foo") { "foo" }'],
+        extensions: ['BeforeFilterExtension']
       )
 
-      expect {
+      expect do
         update_app_file(
-          :routes => ['get("/foo") { "foo" }'],
-          :extensions => ['BeforeFilterExtension']
+          routes: ['get("/foo") { "foo" }'],
+          extensions: ['BeforeFilterExtension']
         )
         get('/foo') # ...to perform the reload
-      }.to_not change { app_const.filters[:before].size }
+      end.to_not change { app_const.filters[:before].size }
     end
 
     it "doesn't duplicate after filters with every reload" do
-      module ::AfterFilterExtension
+      module AfterFilterExtension
         def self.registered(klass)
           klass.after { @bye = 'bye' }
         end
       end
 
       setup_example_app(
-        :routes => ['get("/foo") { "foo" }'],
-        :extensions => ['AfterFilterExtension']
+        routes: ['get("/foo") { "foo" }'],
+        extensions: ['AfterFilterExtension']
       )
 
-      expect {
+      expect do
         update_app_file(
-          :routes => ['get("/foo") { "foo" }'],
-          :extensions => ['AfterFilterExtension']
+          routes: ['get("/foo") { "foo" }'],
+          extensions: ['AfterFilterExtension']
         )
         get('/foo') # ...to perform the reload
-      }.to_not change { app_const.filters[:after].size }
+      end.to_not change { app_const.filters[:after].size }
     end
   end
 
-  describe ".dont_reload" do
+  describe '.dont_reload' do
     before(:each) do
       setup_example_app(
-        :routes => ['get("/foo") { erb :foo }'],
-        :inline_templates => { :foo => 'foo' }
+        routes: ['get("/foo") { erb :foo }'],
+        inline_templates: { foo: 'foo' }
       )
     end
 
-    it "allows to specify a file to stop from being reloaded" do
+    it 'allows to specify a file to stop from being reloaded' do
       app_const.dont_reload app_file_path
-      update_app_file(:routes => ['get("/foo") { "bar" }'])
-      get('/foo').body.strip.should == 'foo'
+      update_app_file(routes: ['get("/foo") { "bar" }'])
+      expect(get('/foo').body.strip).to eq('foo')
     end
 
-    it "allows to specify a glob to stop matching files from being reloaded" do
+    it 'allows to specify a glob to stop matching files from being reloaded' do
       app_const.dont_reload '**/*.rb'
-      update_app_file(:routes => ['get("/foo") { "bar" }'])
-      get('/foo').body.strip.should == 'foo'
+      update_app_file(routes: ['get("/foo") { "bar" }'])
+      expect(get('/foo').body.strip).to eq('foo')
     end
 
     it "doesn't interfere with other application's reloading policy" do
       app_const.dont_reload '**/*.rb'
-      setup_example_app(:routes => ['get("/foo") { "foo" }'])
-      update_app_file(:routes => ['get("/foo") { "bar" }'])
-      get('/foo').body.strip.should == 'bar'
+      setup_example_app(routes: ['get("/foo") { "foo" }'])
+      update_app_file(routes: ['get("/foo") { "bar" }'])
+      expect(get('/foo').body.strip).to eq('bar')
     end
   end
 
-  describe ".also_reload" do
+  describe '.also_reload' do
     before(:each) do
-      setup_example_app(:routes => ['get("/foo") { Foo.foo }'])
+      setup_example_app(routes: ['get("/foo") { Foo.foo }'])
       @foo_path = File.join(tmp_dir, 'foo.rb')
       update_file(@foo_path) do |f|
         f.write 'class Foo; def self.foo() "foo" end end'
@@ -381,20 +381,20 @@ describe Sinatra::Reloader do
       app_const.also_reload @foo_path
     end
 
-    it "allows to specify a file to be reloaded" do
-      get('/foo').body.strip.should == 'foo'
+    it 'allows to specify a file to be reloaded' do
+      expect(get('/foo').body.strip).to eq('foo')
       update_file(@foo_path) do |f|
         f.write 'class Foo; def self.foo() "bar" end end'
       end
-      get('/foo').body.strip.should == 'bar'
+      expect(get('/foo').body.strip).to eq('bar')
     end
 
-    it "allows to specify glob to reaload matching files" do
-      get('/foo').body.strip.should == 'foo'
+    it 'allows to specify glob to reaload matching files' do
+      expect(get('/foo').body.strip).to eq('foo')
       update_file(@foo_path) do |f|
         f.write 'class Foo; def self.foo() "bar" end end'
       end
-      get('/foo').body.strip.should == 'bar'
+      expect(get('/foo').body.strip).to eq('bar')
     end
 
     it "doesn't try to reload a removed file" do
@@ -402,39 +402,38 @@ describe Sinatra::Reloader do
         f.write 'class Foo; def self.foo() "bar" end end'
       end
       FileUtils.rm @foo_path
-      get('/foo').body.strip.should == 'foo'
+      expect(get('/foo').body.strip).to eq('foo')
     end
 
     it "doesn't interfere with other application's reloading policy" do
       app_const.also_reload '**/*.rb'
-      setup_example_app(:routes => ['get("/foo") { Foo.foo }'])
-      get('/foo').body.strip.should == 'foo'
+      setup_example_app(routes: ['get("/foo") { Foo.foo }'])
+      expect(get('/foo').body.strip).to eq('foo')
       update_file(@foo_path) do |f|
         f.write 'class Foo; def self.foo() "bar" end end'
       end
-      get('/foo').body.strip.should == 'foo'
+      expect(get('/foo').body.strip).to eq('foo')
     end
   end
 
-  it "automatically registers the reloader in the subclasses" do
+  it 'automatically registers the reloader in the subclasses' do
     class ::Parent < Sinatra::Base
       register Sinatra::Reloader
       enable :reloader
     end
 
     setup_example_app(
-      :routes => ['get("/foo") { "foo" }'],
-      :enable_reloader => false,
-      :parent => 'Parent'
+      routes: ['get("/foo") { "foo" }'],
+      enable_reloader: false,
+      parent: 'Parent'
     )
 
     update_app_file(
-      :routes => ['get("/foo") { "bar" }'],
-      :enable_reloader => false,
-      :parent => 'Parent'
+      routes: ['get("/foo") { "bar" }'],
+      enable_reloader: false,
+      parent: 'Parent'
     )
 
-    get('/foo').body.should == 'bar'
+    expect(get('/foo').body).to eq('bar')
   end
-
 end

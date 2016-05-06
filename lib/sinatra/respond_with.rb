@@ -1,7 +1,7 @@
 require 'sinatra/json'
 require 'sinatra/base'
 
-$KCODE = "UTF-8" unless RUBY_VERSION > "1.9.0"
+$KCODE = 'UTF-8' unless RUBY_VERSION > '1.9.0'
 
 module Sinatra
   #
@@ -90,29 +90,30 @@ module Sinatra
   module RespondWith
     class Format
       def initialize(app)
-        @app, @map, @generic, @default = app, {}, {}, nil
+        @app = app
+        @map = {}
+        @generic = {}
+        @default = nil
       end
 
       def on(type, &block)
         @app.settings.mime_types(type).each do |mime|
           case mime
-          when '*/*'            then @default     = block
-          when /^([^\/]+)\/\*$/ then @generic[$1] = block
-          else                       @map[mime]   = block
+          when '*/*' then @default = block
+          when %r{^([^\/]+)\/\*$} then @generic[Regexp.last_match(1)] = block
+          else @map[mime] = block
           end
         end
       end
 
       def finish
         yield self if block_given?
-        mime_type = @app.content_type             ||
-          @app.request.preferred_type(@map.keys)  ||
-          @app.request.preferred_type             ||
-          'text/html'
+        mime_type = @app.content_type || @app.request.preferred_type(@map.keys) || @app.request.preferred_type || 'text/html'
         type = mime_type.split(/\s*;\s*/, 2).first
-        handlers = [@map[type], @generic[type[/^[^\/]+/]], @default].compact
+        handlers = [@map[type], @generic[type[%r{^[^\/]+}]], @default].compact
         handlers.each do |block|
-          if result = block.call(type)
+          result = block.call(type)
+          if result
             @app.content_type mime_type
             @app.halt result
           end
@@ -121,7 +122,7 @@ module Sinatra
       end
 
       def method_missing(method, *args, &block)
-        return super if args.any? or block.nil? or not @app.mime_type(method)
+        return super if args.any? || block.nil? || !@app.mime_type(method)
         on(method, &block)
       end
     end
@@ -130,19 +131,23 @@ module Sinatra
       include Sinatra::JSON
 
       def respond_with(template, object = nil, &block)
-        object, template = template, nil unless Symbol === template
+        # rubocop:disable Style/CaseEquality
+        unless Symbol === template
+          object = template
+          template = nil
+        end
         format = Format.new(self)
-        format.on "*/*" do |type|
+        format.on '*/*' do |type|
           exts = settings.ext_map[type]
           exts << :xml if type.end_with? '+xml'
           if template
             args = template_cache.fetch(type, template) { template_for(template, exts) }
             if args.any?
-              locals = { :object => object }
+              locals = { object: object }
               locals.merge! object.to_hash if object.respond_to? :to_hash
 
               renderer = args.first
-              options = args[1..-1] + [{:locals => locals}]
+              options = args[1..-1] + [{ locals: locals }]
 
               halt send(renderer, *options)
             end
@@ -176,11 +181,11 @@ module Sinatra
         end
         possible.each do |engine, template|
           # not exactly like Tilt[engine], but does not trigger a require
-          if Tilt.respond_to?(:mappings)
-            klass = Tilt.mappings[Tilt.normalize(engine)].first
-          else
-            klass = Tilt[engine]
-          end
+          klass = if Tilt.respond_to?(:mappings)
+                    Tilt.mappings[Tilt.normalize(engine)].first
+                  else
+                    Tilt[engine]
+                  end
           find_template(settings.views, template, klass) do |file|
             next unless File.exist? file
             return settings.rendering_method(engine) << template.to_sym
@@ -192,7 +197,7 @@ module Sinatra
 
     def remap_extensions
       ext_map.clear
-      Rack::Mime::MIME_TYPES.each { |e,t| ext_map[t] << e[1..-1].to_sym }
+      Rack::Mime::MIME_TYPES.each { |e, t| ext_map[t] << e[1..-1].to_sym }
       ext_map['text/javascript'] << 'js'
       ext_map['text/xml'] << 'xml'
     end
@@ -207,7 +212,7 @@ module Sinatra
       if formats.any?
         @respond_to ||= []
         @respond_to.concat formats
-      elsif @respond_to.nil? and superclass.respond_to? :respond_to
+      elsif @respond_to.nil? && superclass.respond_to?(:respond_to)
         superclass.respond_to
       else
         @respond_to
@@ -218,13 +223,6 @@ module Sinatra
       return [engine] if Sinatra::Templates.method_defined? engine
       return [:mab] if engine.to_sym == :markaby
       [:render, :engine]
-    end
-
-    private
-
-    def compile!(verb, path, block, options = {})
-      options[:provides] ||= respond_to if respond_to
-      super
     end
 
     def self.jrubyify(engs)
@@ -238,24 +236,30 @@ module Sinatra
 
     def self.engines
       engines = {
-        :css  => [:less,  :sass, :scss],
-        :xml  => [:builder, :nokogiri],
-        :js   => [:coffee],
-        :html => [:erb, :erubis, :haml, :slim, :liquid, :radius, :mab,
-          :markdown, :textile, :rdoc],
-        :all =>  (Sinatra::Templates.instance_methods.map(&:to_sym) +
-          [:mab] - [:find_template, :markaby]),
-        :json => [:yajl],
+        css: [:less, :sass, :scss],
+        xml: [:builder, :nokogiri],
+        js: [:coffee],
+        html: [:erb, :erubis, :haml, :slim, :liquid, :radius, :mab, :markdown, :textile, :rdoc],
+        all: (Sinatra::Templates.instance_methods.map(&:to_sym) +
+              [:mab] - [:find_template, :markaby]),
+        json: [:yajl]
       }
       engines.default = []
       (defined? JRUBY_VERSION) ? jrubyify(engines) : engines
-    end  
+    end
 
     def self.registered(base)
-      base.set :ext_map, Hash.new { |h,k| h[k] = [] }
+      base.set :ext_map, Hash.new { |h, k| h[k] = [] }
       base.set :template_engines, engines
       base.remap_extensions
       base.helpers Helpers
+    end
+
+    private
+
+    def compile!(verb, path, block, options = {})
+      options[:provides] ||= respond_to if respond_to
+      super
     end
   end
 

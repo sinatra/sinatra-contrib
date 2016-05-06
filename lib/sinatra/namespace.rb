@@ -3,7 +3,6 @@ require 'sinatra/base'
 require 'sinatra/decompile'
 
 module Sinatra
-
   # = Sinatra::Namespace
   #
   # <tt>Sinatra::Namespace</tt> is an extension that adds namespaces to an
@@ -128,13 +127,16 @@ module Sinatra
   module Namespace
     def self.new(base, pattern, conditions = {}, &block)
       Module.new do
-        #quelch uninitialized variable warnings, since these get used by compile method.
-        @pattern, @conditions = nil, nil
+        # quelch uninitialized variable warnings, since these get used by compile method.
+        @pattern = nil
+        @conditions = nil
         extend NamespacedMethods
         include InstanceMethods
-        @base, @extensions, @errors = base, [], {}
+        @base = base
+        @extensions = []
+        @errors = {}
         @pattern, @conditions = compile(pattern, conditions)
-        @templates            = Hash.new { |h,k| @base.templates[k] }
+        @templates            = Hash.new { |_h, k| @base.templates[k] }
         namespace = self
         before { extend(@namespace = namespace) }
         class_eval(&block)
@@ -167,7 +169,7 @@ module Sinatra
       attr_reader :base, :templates
 
       def self.prefixed(*names)
-        names.each { |n| define_method(n) { |*a, &b| prefixed(n, *a, &b) }}
+        names.each { |n| define_method(n) { |*a, &b| prefixed(n, *a, &b) } }
       end
 
       prefixed :before, :after, :delete, :get, :head, :options, :patch, :post, :put
@@ -203,7 +205,7 @@ module Sinatra
       end
 
       def error(*codes, &block)
-        args  = Sinatra::Base.send(:compile!, "ERROR", regexpify(@pattern), block)
+        args  = Sinatra::Base.send(:compile!, 'ERROR', regexpify(@pattern), block)
         codes = codes.map { |c| Array(c) }.flatten
         codes << Exception if codes.empty?
 
@@ -220,7 +222,7 @@ module Sinatra
 
       def set(key, value = self, &block)
         raise ArgumentError, "may not set #{key}" if key != :views
-        return key.each { |k,v| set(k, v) } if block.nil? and value == self
+        return key.each { |k, v| set(k, v) } if block.nil? && value == self
         block ||= proc { value }
         singleton_class.send(:define_method, key, &block)
       end
@@ -238,14 +240,13 @@ module Sinatra
         templates[name] = [block, filename, line.to_i]
       end
 
-      def layout(name=:layout, &block)
+      def layout(name = :layout, &block)
         template name, &block
       end
 
       def pattern
         @pattern
       end
-
 
       private
 
@@ -258,31 +259,38 @@ module Sinatra
           conditions = conditions.merge pattern.to_hash
           pattern = nil
         end
-        base_pattern, base_conditions = @pattern, @conditions
+        base_pattern = @pattern
+        base_conditions = @conditions
         pattern         ||= default_pattern
         base_pattern    ||= base.pattern    if base.respond_to? :pattern
         base_conditions ||= base.conditions if base.respond_to? :conditions
-        [ prefixed_path(base_pattern, pattern),
-          (base_conditions || {}).merge(conditions) ]
+        [prefixed_path(base_pattern, pattern),
+         (base_conditions || {}).merge(conditions)]
       end
 
       def prefixed_path(a, b)
-        return a || b || // unless a and b
-        a, b = decompile(a), decompile(b) unless a.class == b.class
-        a, b = regexpify(a), regexpify(b) unless a.class == b.class
+        return a || b || // unless a && b
+        unless a.class == b.class
+          a = decompile(a)
+          b = decompile(b)
+        end
+        unless a.class == b.class
+          a = regexpify(a)
+          b = regexpify(b)
+        end
         path = a.class.new "#{a}#{b}"
-        path = /^#{path}$/ if path.is_a? Regexp and base == app
+        path = /^#{path}$/ if path.is_a?(Regexp) && base == app
         path
       end
 
       def regexpify(pattern)
         pattern = Sinatra::Base.send(:compile, pattern).first.inspect
-        pattern.gsub! /^\/(\^|\\A)?|(\$|\\z)?\/$/, ''
+        pattern.gsub! %r{^\/(\^|\\A)?|(\$|\\z)?\/$}, ''
         Regexp.new pattern
       end
 
       def prefixed(method, pattern = nil, conditions = {}, &block)
-        default = '*' if method == :before or method == :after
+        default = '*' if method == :before || method == :after
         pattern, conditions = compile pattern, conditions, default
         result = base.send(method, pattern, conditions, &block)
         invoke_hook :route_added, method.to_s.upcase, pattern, block

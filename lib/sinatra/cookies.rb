@@ -66,10 +66,10 @@ module Sinatra
         @deleted         = []
 
         @options = {
-          :path => @request.script_name.to_s.empty? ? '/' : @request.script_name,
-          :domain => @request.host == 'localhost' ? nil : @request.host,
-          :secure   => @request.secure?,
-          :httponly => true
+          path: @request.script_name.to_s.empty? ? '/' : @request.script_name,
+          domain: @request.host == 'localhost' ? nil : @request.host,
+          secure: @request.secure?,
+          httponly: true
         }
 
         if app.settings.respond_to? :cookie_options
@@ -78,7 +78,7 @@ module Sinatra
       end
 
       def ==(other)
-        other.respond_to? :to_hash and to_hash == other.to_hash
+        other.respond_to?(:to_hash) && to_hash == other.to_hash
       end
 
       def [](key)
@@ -86,7 +86,7 @@ module Sinatra
       end
 
       def []=(key, value)
-        @response.set_cookie key.to_s, @options.merge(:value => value)
+        @response.set_cookie key.to_s, @options.merge(value: value)
       end
 
       def assoc(key)
@@ -150,23 +150,23 @@ module Sinatra
         to_hash.flatten
       end if Hash.method_defined? :flatten
 
-      def has_key?(key)
-        response_cookies.has_key? key.to_s or request_cookies.has_key? key.to_s
+      def key?(key)
+        response_cookies.key?(key.to_s) || request_cookies.key?(key.to_s)
       end
 
-      def has_value?(value)
-        response_cookies.has_value? value or request_cookies.has_value? value
+      def value?(value)
+        response_cookies.value?(value) || request_cookies.value?(value)
       end
 
       def hash
         to_hash.hash
       end
 
-      alias include? has_key?
-      alias member?  has_key?
+      alias include? key?
+      alias member?  key?
 
       def index(value)
-        warn "Hash#index is deprecated; use Hash#key" if RUBY_VERSION > '1.9'
+        warn 'Hash#index is deprecated; use Hash#key' if RUBY_VERSION > '1.9'
         key(value)
       end
 
@@ -180,14 +180,12 @@ module Sinatra
 
       def keep_if
         return enum_for(__method__) unless block_given?
-        delete_if { |*a| not yield(*a) }
+        delete_if { |*a| !yield(*a) }
       end
 
       def key(value)
         to_hash.key(value)
       end
-
-      alias key? has_key?
 
       def keys
         to_hash.keys
@@ -203,11 +201,11 @@ module Sinatra
 
       def merge!(other)
         other.each_pair do |key, value|
-          if block_given? and include? key
-            self[key] = yield(key.to_s, self[key], value)
-          else
-            self[key] = value
-          end
+          self[key] = if block_given? && include?(key)
+                        yield(key.to_s, self[key], value)
+                      else
+                        value
+                      end
         end
       end
 
@@ -229,7 +227,7 @@ module Sinatra
       alias reject! delete_if
 
       def replace(other)
-        select! { |k, v| other.include?(k) or other.include?(k.to_s)  }
+        select! { |k, _v| other.include?(k) || other.include?(k.to_s) }
         merge! other
       end
 
@@ -267,7 +265,6 @@ module Sinatra
       end
 
       alias update merge!
-      alias value? has_value?
 
       def values
         to_hash.values
@@ -316,7 +313,7 @@ module Sinatra
       end
 
       def request_cookies
-        @request.cookies.reject { |key, value| deleted.include? key }
+        @request.cookies.reject { |key, _value| deleted.include? key }
       end
     end
 

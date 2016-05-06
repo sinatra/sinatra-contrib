@@ -2,7 +2,6 @@ require 'sinatra/base'
 require 'sinatra/capture'
 
 module Sinatra
-
   # = Sinatra::ContentFor
   #
   # <tt>Sinatra::ContentFor</tt> is a set of helpers that allows you to capture
@@ -139,7 +138,7 @@ module Sinatra
     private
 
     def content_blocks
-      @content_blocks ||= Hash.new {|h,k| h[k] = [] }
+      @content_blocks ||= Hash.new { |h, k| h[k] = [] }
     end
   end
 

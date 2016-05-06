@@ -6,7 +6,7 @@ module Sinatra
   module Contrib
     module Loader
       def extensions
-        @extensions ||= {:helpers => [], :register => []}
+        @extensions ||= { helpers: [], register: [] }
       end
 
       def register(name, path = nil)

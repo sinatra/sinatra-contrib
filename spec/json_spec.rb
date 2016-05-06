@@ -3,19 +3,20 @@ require 'multi_json'
 require 'spec_helper'
 require 'okjson'
 
-shared_examples_for "a json encoder" do |lib, const|
+shared_examples_for 'a json encoder' do |lib, const|
   before do
     begin
       require lib if lib
+      # rubocop:disable Lint/Eval
       @encoder = eval(const)
     rescue LoadError
-      pending "unable to load #{lib}"
+      skip "unable to load #{lib}"
     end
   end
 
   it "allows setting :encoder to #{const}" do
     enc = @encoder
-    mock_app { get('/') { json({'foo' => 'bar'}, :encoder => enc) }}
+    mock_app { get('/') { json({ 'foo' => 'bar' }, encoder: enc) } }
     results_in 'foo' => 'bar'
   end
 
@@ -37,66 +38,74 @@ describe Sinatra::JSON do
   end
 
   def results_in(obj)
-    OkJson.decode(get('/').body).should == obj
+    expect(OkJson.decode(get('/').body)).to eq(obj)
   end
 
-  it "encodes objects to json out of the box" do
-    mock_app { get('/') { json :foo => [1, 'bar', nil] } }
+  it 'encodes objects to json out of the box' do
+    mock_app { get('/') { json foo: [1, 'bar', nil] } }
     results_in 'foo' => [1, 'bar', nil]
   end
 
   it "sets the content type to 'application/json'" do
     mock_app { get('/') { json({}) } }
-    get('/')["Content-Type"].should include("application/json")
+    expect(get('/')['Content-Type']).to include('application/json')
   end
 
-  it "allows overriding content type with :content_type" do
-    mock_app { get('/') { json({}, :content_type => "foo/bar") } }
-    get('/')["Content-Type"].should == "foo/bar"
+  it 'allows overriding content type with :content_type' do
+    mock_app { get('/') { json({}, content_type: 'foo/bar') } }
+    expect(get('/')['Content-Type']).to eq('foo/bar')
   end
 
-  it "accepts shorthands for :content_type" do
-    mock_app { get('/') { json({}, :content_type => :js) } }
-    get('/')["Content-Type"].should == "application/javascript;charset=utf-8"
+  it 'accepts shorthands for :content_type' do
+    mock_app { get('/') { json({}, content_type: :js) } }
+    expect(get('/')['Content-Type']).to eq('application/javascript;charset=utf-8')
   end
 
   it 'calls generate on :encoder if available' do
     enc = Object.new
-    def enc.generate(obj) obj.inspect end
-    mock_app { get('/') { json(42, :encoder => enc) }}
-    get('/').body.should == '42'
+    def enc.generate(obj)
+      obj.inspect
+    end
+    mock_app { get('/') { json(42, encoder: enc) } }
+    expect(get('/').body).to eq('42')
   end
 
   it 'calls encode on :encoder if available' do
     enc = Object.new
-    def enc.encode(obj) obj.inspect end
-    mock_app { get('/') { json(42, :encoder => enc) }}
-    get('/').body.should == '42'
+    def enc.encode(obj)
+      obj.inspect
+    end
+    mock_app { get('/') { json(42, encoder: enc) } }
+    expect(get('/').body).to eq('42')
   end
 
   it 'sends :encoder as method call if it is a Symbol' do
-    mock_app { get('/') { json(42, :encoder => :inspect) }}
-    get('/').body.should == '42'
+    mock_app { get('/') { json(42, encoder: :inspect) } }
+    expect(get('/').body).to eq('42')
   end
 
   it 'calls generate on settings.json_encoder if available' do
     enc = Object.new
-    def enc.generate(obj) obj.inspect end
+    def enc.generate(obj)
+      obj.inspect
+    end
     mock_app do
       set :json_encoder, enc
       get('/') { json 42 }
     end
-    get('/').body.should == '42'
+    expect(get('/').body).to eq('42')
   end
 
   it 'calls encode on settings.json_encode if available' do
     enc = Object.new
-    def enc.encode(obj) obj.inspect end
+    def enc.encode(obj)
+      obj.inspect
+    end
     mock_app do
       set :json_encoder, enc
       get('/') { json 42 }
     end
-    get('/').body.should == '42'
+    expect(get('/').body).to eq('42')
   end
 
   it 'sends settings.json_encode  as method call if it is a Symbol' do
@@ -104,12 +113,12 @@ describe Sinatra::JSON do
       set :json_encoder, :inspect
       get('/') { json 42 }
     end
-    get('/').body.should == '42'
+    expect(get('/').body).to eq('42')
   end
 
-  describe('Yajl')    { it_should_behave_like "a json encoder", "yajl", "Yajl::Encoder" } unless defined? JRUBY_VERSION
-  describe('JSON')    { it_should_behave_like "a json encoder", "json", "::JSON"        }
-  describe('OkJson')  { it_should_behave_like "a json encoder", nil,    "OkJson"        }
-  describe('to_json') { it_should_behave_like "a json encoder", "json", ":to_json"      }
-  describe('without') { it_should_behave_like "a json encoder", nil,    "Sinatra::JSON" }
+  describe('Yajl')    { it_should_behave_like 'a json encoder', 'yajl', 'Yajl::Encoder' } unless defined? JRUBY_VERSION
+  describe('JSON')    { it_should_behave_like 'a json encoder', 'json', '::JSON'        }
+  describe('OkJson')  { it_should_behave_like 'a json encoder', nil,    'OkJson'        }
+  describe('to_json') { it_should_behave_like 'a json encoder', 'json', ':to_json'      }
+  describe('without') { it_should_behave_like 'a json encoder', nil,    'Sinatra::JSON' }
 end

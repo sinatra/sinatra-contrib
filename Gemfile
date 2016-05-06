@@ -1,8 +1,7 @@
-source "https://rubygems.org" unless ENV['QUICK']
+source 'https://rubygems.org' unless ENV['QUICK']
 gemspec
 
 group :development, :test do
-
   platform :ruby_18 do
     gem 'libv8', '3.16.14.7'
   end
@@ -38,10 +37,9 @@ end
 # Allows stuff like `tilt=1.2.2 bundle install` or `tilt=master ...`.
 # Used by the CI.
 repos = { 'sinatra' => 'sinatra/sinatra', 'tilt' => 'rtomayko/tilt', 'rack' => 'rack/rack' }
-%w[sinatra tilt rack].each do |lib|
+%w(sinatra tilt rack).each do |lib|
   dep = (ENV[lib] || 'stable').sub "#{lib}-", ''
   dep = nil if dep == 'stable'
-  dep = {:github => repos[lib], :branch => dep} if dep and dep !~ /(\d+\.)+\d+/
+  dep = { github: repos[lib], branch: dep } if dep && dep !~ /(\d+\.)+\d+/
   gem lib, dep if dep
 end
-

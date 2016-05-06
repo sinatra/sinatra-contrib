@@ -9,8 +9,8 @@ module Sinatra
     end
 
     def erubis?
-      @current_engine == :erubis or
-      erb? && Tilt[:erb] == Tilt::ErubisTemplate
+      @current_engine == :erubis ||
+        erb? && Tilt[:erb] == Tilt::ErubisTemplate
     end
 
     def haml?
@@ -79,7 +79,8 @@ module Sinatra
     end
 
     def with_engine(engine)
-      @current_engine, engine_was = engine.to_sym, @current_engine
+      engine_was = @current_engine
+      @current_engine = engine.to_sym
       yield
     ensure
       @current_engine = engine_was

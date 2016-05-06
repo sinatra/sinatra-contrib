@@ -18,32 +18,32 @@ describe Sinatra::Capture do
     subject.send(:render, engine, template.to_sym).strip.gsub(/\s+/, ' ')
   end
 
-  shared_examples_for "a template language" do |engine|
+  shared_examples_for 'a template language' do |engine|
     lang = engine == :erubis ? :erb : engine
-    require "#{engine}"
+    require engine.to_s
 
-    it "captures content" do
-      render(engine, "simple_#{lang}").should == "Say Hello World!"
+    it 'captures content' do
+      expect(render(engine, "simple_#{lang}")).to eq('Say Hello World!')
     end
 
-    it "allows nested captures" do
-      render(engine, "nested_#{lang}").should == "Say Hello World!"
+    it 'allows nested captures' do
+      expect(render(engine, "nested_#{lang}")).to eq('Say Hello World!')
     end
   end
 
-  describe('haml')   { it_behaves_like "a template language", :haml   }
-  describe('slim')   { it_behaves_like "a template language", :slim   }
-  describe('erubis') { it_behaves_like "a template language", :erubis }
+  describe('haml')   { it_behaves_like 'a template language', :haml   }
+  describe('slim')   { it_behaves_like 'a template language', :slim   }
+  describe('erubis') { it_behaves_like 'a template language', :erubis }
 
   describe 'erb' do
-    it_behaves_like "a template language", :erb
+    it_behaves_like 'a template language', :erb
 
-    it "handles utf-8 encoding" do
-      render(:erb, "utf_8").should == "UTF-8 –"
+    it 'handles utf-8 encoding' do
+      expect(render(:erb, 'utf_8')).to eq("UTF-8 –")
     end
 
-    it "handles ISO-8859-1 encoding" do
-      render(:erb, "iso_8859_1").should == "ISO-8859-1 -"
+    it 'handles ISO-8859-1 encoding' do
+      expect(render(:erb, 'iso_8859_1')).to eq('ISO-8859-1 -')
     end if RUBY_VERSION >= '1.9'
   end
 end

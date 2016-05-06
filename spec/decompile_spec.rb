@@ -4,40 +4,39 @@ RSpec::Matchers.define :decompile do |path|
   match do |app|
     @compiled, @keys    = app.send :compile, path
     @decompiled         = app.decompile(@compiled, @keys)
-    @decompiled.should == path
+    expect(@decompiled).to eq(path)
   end
 
   failure_message_for_should do |app|
-    values = [app, @compiled, @keys, path, @decompiled].map(&:inspect)
-    "expected %s to decompile %s with %s to %s, but was %s" % values
+    "expected #{app} to decompile #{@compiled} with #{@keys} to #{path}, but was #{@decompiled}"
   end
 end
 
 describe Sinatra::Decompile do
   subject { Sinatra::Application }
-  it { should decompile("") }
-  it { should decompile("/") }
-  it { should decompile("/?") }
-  it { should decompile("/foo") }
-  it { should decompile("/:name") }
-  it { should decompile("/:name?") }
-  it { should decompile("/:foo/:bar") }
-  it { should decompile("/page/:id/edit") }
-  it { should decompile("/hello/*") }
-  it { should decompile("/*/foo/*") }
-  it { should decompile("*") }
-  it { should decompile(":name.:format") }
-  it { should decompile("a b") }
-  it { should decompile("a+b") }
-  it { should decompile(/./) }
-  it { should decompile(/f(oo)/) }
-  it { should decompile(/ba+r/) }
+  it { is_expected.to decompile('') }
+  it { is_expected.to decompile('/') }
+  it { is_expected.to decompile('/?') }
+  it { is_expected.to decompile('/foo') }
+  it { is_expected.to decompile('/:name') }
+  it { is_expected.to decompile('/:name?') }
+  it { is_expected.to decompile('/:foo/:bar') }
+  it { is_expected.to decompile('/page/:id/edit') }
+  it { is_expected.to decompile('/hello/*') }
+  it { is_expected.to decompile('/*/foo/*') }
+  it { is_expected.to decompile('*') }
+  it { is_expected.to decompile(':name.:format') }
+  it { is_expected.to decompile('a b') }
+  it { is_expected.to decompile('a+b') }
+  it { is_expected.to decompile(/./) }
+  it { is_expected.to decompile(/f(oo)/) }
+  it { is_expected.to decompile(/ba+r/) }
 
   it 'just returns strings' do
-    subject.decompile('/foo').should == '/foo'
+    expect(subject.decompile('/foo')).to eq('/foo')
   end
 
   it 'just decompile simple regexps without keys' do
-    subject.decompile(%r{/foo}).should == '/foo'
+    expect(subject.decompile(%r{/foo})).to eq('/foo')
   end
 end

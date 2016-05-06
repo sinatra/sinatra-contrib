@@ -56,13 +56,33 @@ module Sinatra
   #     end
   #
   module MultiRoute
-    def head(*args, &block)     super(*route_args(args), &block)  end
-    def delete(*args, &block)   super(*route_args(args), &block)  end
-    def get(*args, &block)      super(*route_args(args), &block)  end
-    def options(*args, &block)  super(*route_args(args), &block)  end
-    def patch(*args, &block)    super(*route_args(args), &block)  end
-    def post(*args, &block)     super(*route_args(args), &block)  end
-    def put(*args, &block)      super(*route_args(args), &block)  end
+    def head(*args, &block)
+      super(*route_args(args), &block)
+    end
+
+    def delete(*args, &block)
+      super(*route_args(args), &block)
+    end
+
+    def get(*args, &block)
+      super(*route_args(args), &block)
+    end
+
+    def options(*args, &block)
+      super(*route_args(args), &block)
+    end
+
+    def patch(*args, &block)
+      super(*route_args(args), &block)
+    end
+
+    def post(*args, &block)
+      super(*route_args(args), &block)
+    end
+
+    def put(*args, &block)
+      super(*route_args(args), &block)
+    end
 
     def route(*args, &block)
       options = Hash === args.last ? args.pop : {}

@@ -3,7 +3,6 @@ require 'backports'
 require 'uri'
 
 module Sinatra
-
   # = Sinatra::Decompile
   #
   # <tt>Sinatra::Decompile</tt> is an extension that provides a method,
@@ -44,8 +43,6 @@ module Sinatra
   # +decompile+, you will need to call <tt>Sinatra::Decompile.decompile</tt>.
   #
   module Decompile
-    extend self
-
     ##
     # Regenerates a string pattern for a given route
     #
@@ -73,36 +70,37 @@ module Sinatra
       #
       # Sinatra 2.0 will come with a mechanism for this, making this obsolete.
       pattern, keys = pattern if pattern.respond_to? :to_ary
-      keys, str     = keys.try(:dup), pattern.inspect
-      return pattern unless str.start_with? '/' and str.end_with? '/'
-      str.gsub! /^\/(\^|\\A)?|(\$|\\z)?\/$/, ''
+      keys = keys.try(:dup)
+      str = pattern.inspect
+      return pattern unless str.start_with?('/') && str.end_with?('/')
+      str.gsub! %r{^\/(\^|\\A)?|(\$|\\z)?\/$}, ''
       str.gsub! encoded(' '), ' '
       return pattern if str =~ /^[\.\+]/
       str.gsub! '((?:[^\.\/?#%]|(?:%[^2].|%[2][^Ee]))+)', '([^\/?#]+)'
       str.gsub! '((?:[^\/?#%]|(?:%[^2].|%[2][^Ee]))+)', '([^\/?#]+)'
-      str.gsub! /\([^\(\)]*\)|\([^\(\)]*\([^\(\)]*\)[^\(\)]*\)/ do |part|
+      str.gsub!(/\([^\(\)]*\)|\([^\(\)]*\([^\(\)]*\)[^\(\)]*\)/) do |part|
         case part
         when '(.*?)'
           return pattern if keys.shift != 'splat'
           '*'
         when /^\(\?\:(\\*.)\|%[\w\[\]]+\)$/
-          $1
+          Regexp.last_match(1)
         when /^\(\?\:(%\d+)\|([^\)]+|\([^\)]+\))\)$/
-          URI.unescape($1)
+          URI.unescape(Regexp.last_match(1))
         when '([^\/?#]+)'
           return pattern if keys.empty?
-          ":" << keys.shift
+          ':' << keys.shift
         when /^\(\?\:\\?(.)\|/
-          char = $1
+          char = Regexp.last_match(1)
           return pattern unless encoded(char) == part
           Regexp.escape(char)
         else
           return pattern
         end
       end
-      str.gsub /(.)([\.\+\(\)\/])/ do
-        return pattern if $1 != "\\"
-        $2
+      str.gsub %r{(.)([\.\+\(\)\/])} do
+        return pattern if Regexp.last_match(1) != '\\'
+        Regexp.last_match(2)
       end
     end
 
@@ -112,15 +110,14 @@ module Sinatra
       return super if defined? super
       enc = uri_parser.escape(char)
       enc = "(?:#{escaped(char, enc).join('|')})" if enc == char
-      enc = "(?:#{enc}|#{encoded('+')})" if char == " "
+      enc = "(?:#{enc}|#{encoded('+')})" if char == ' '
       enc
     end
 
     def uri_parser
-      #TODO: Remove check after dropping support for 1.8.7
+      # TODO: Remove check after dropping support for 1.8.7
       @_uri_parser ||= defined?(URI::Parser) ? URI::Parser.new : URI
     end
-
   end
 
   register Decompile
