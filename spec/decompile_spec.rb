@@ -29,15 +29,9 @@ describe Sinatra::Decompile do
   it { should decompile(":name.:format") }
   it { should decompile("a b") }
   it { should decompile("a+b") }
-  it { should decompile(/./) }
-  it { should decompile(/f(oo)/) }
-  it { should decompile(/ba+r/) }
 
   it 'just returns strings' do
     subject.decompile('/foo').should == '/foo'
   end
 
-  it 'just decompile simple regexps without keys' do
-    subject.decompile(%r{/foo}).should == '/foo'
-  end
 end
