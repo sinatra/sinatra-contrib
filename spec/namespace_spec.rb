@@ -16,7 +16,6 @@ describe Sinatra::Namespace do
 
   verbs.each do |verb|
     describe "HTTP #{verb.to_s.upcase}" do
-
       it 'prefixes the path with the namespace' do
         namespace('/foo') { send(verb, '/bar') { 'baz' }}
         expect(send(verb, '/foo/bar')).to be_ok
@@ -164,6 +163,18 @@ describe Sinatra::Namespace do
       end
 
       describe 'before-filters' do
+
+        it 'execute before and after blocks only when route match' do
+          mock_app do
+            send(:namespace, '/foo') { send(:before) { $output  = $output.to_s + "foo" }; send(verb) { $output }}
+            send(:namespace, '/foobar') { send(:before) { $output  = $output.to_s + "bar" }; send(verb) { $output }}
+          end
+
+          body = send(verb, "/foobar").body.to_s
+          body.should_not include("foo")
+          body.should include("bar")
+        end
+
         specify 'are triggered' do
           ran = false
           namespace('/foo') { before { ran = true }}
