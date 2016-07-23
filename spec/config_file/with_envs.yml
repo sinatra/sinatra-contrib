@@ -1,7 +1,0 @@
----
-development:
-  foo: development
-production:
-  foo: production
-test:
-  foo: test
